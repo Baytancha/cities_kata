@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres-kattta
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    restart: always
+    ports:
+        - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+        - mylocal
+
+  app:
+     build: ./task
+     container_name: kata_app
+     ports:
+      - "8080:8080"
+     restart: always
+     networks:
+        - mylocal
+     depends_on:
+      - db
+
+        
+networks:
+    mylocal:
+        driver: bridge
+
+volumes:
+    pgdata:
